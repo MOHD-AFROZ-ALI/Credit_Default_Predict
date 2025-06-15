@@ -1,0 +1,130 @@
+# Model Configuration
+data_source:
+  url: "https://archive.ics.uci.edu/ml/machine-learning-databases/00350/default%20of%20credit%20card%20clients.xls"
+  format: "excel"
+  sheet_name: "Data"
+
+data_ingestion:
+  root_dir: "artifacts/data_ingestion"
+  raw_data_path: "data/raw/credit_default.csv"
+  test_size: 0.2
+  random_state: 42
+  stratify: true
+
+data_validation:
+  root_dir: "artifacts/data_validation"
+  validation_status_file: "artifacts/data_validation/status.txt"
+  drift_report_file: "artifacts/data_validation/drift_report.yaml"
+
+data_transformation:
+  root_dir: "artifacts/data_transformation"
+  preprocessor_path: "artifacts/data_transformation/preprocessor.pkl"
+  train_array_path: "artifacts/data_transformation/train.npy"
+  test_array_path: "artifacts/data_transformation/test.npy"
+
+  numerical_features:
+    - LIMIT_BAL
+    - AGE
+    - BILL_AMT1
+    - BILL_AMT2
+    - BILL_AMT3
+    - BILL_AMT4
+    - BILL_AMT5
+    - BILL_AMT6
+    - PAY_AMT1
+    - PAY_AMT2
+    - PAY_AMT3
+    - PAY_AMT4
+    - PAY_AMT5
+    - PAY_AMT6
+
+  categorical_features:
+    - SEX
+    - EDUCATION
+    - MARRIAGE
+    - PAY_0
+    - PAY_2
+    - PAY_3
+    - PAY_4
+    - PAY_5
+    - PAY_6
+
+  feature_engineering:
+    create_ratio_features: true
+    create_payment_features: true
+    create_balance_features: true
+
+model_trainer:
+  root_dir: "artifacts/model_trainer"
+  model_path: "artifacts/model_trainer/model.pkl"
+  best_model_path: "artifacts/model_trainer/best_model.pkl"
+  metric_file_path: "artifacts/model_trainer/metrics.yaml"
+
+  algorithms:
+    xgboost:
+      model_class: "XGBClassifier"
+      hyperparameters:
+        n_estimators: [100, 200, 300]
+        max_depth: [3, 5, 7]
+        learning_rate: [0.01, 0.1, 0.2]
+        subsample: [0.8, 0.9, 1.0]
+        colsample_bytree: [0.8, 0.9, 1.0]
+
+    random_forest:
+      model_class: "RandomForestClassifier"
+      hyperparameters:
+        n_estimators: [100, 200, 300]
+        max_depth: [10, 20, 30]
+        min_samples_split: [2, 5, 10]
+        min_samples_leaf: [1, 2, 4]
+
+    gradient_boosting:
+      model_class: "GradientBoostingClassifier"
+      hyperparameters:
+        n_estimators: [100, 200]
+        learning_rate: [0.01, 0.1, 0.2]
+        max_depth: [3, 5, 7]
+
+    logistic_regression:
+      model_class: "LogisticRegression"
+      hyperparameters:
+        C: [0.01, 0.1, 1, 10]
+        penalty: ["l1", "l2"]
+        solver: ["liblinear", "saga"]
+
+  cross_validation:
+    cv_folds: 5
+    scoring: "roc_auc"
+
+  evaluation_metrics:
+    - accuracy
+    - precision
+    - recall
+    - f1_score
+    - roc_auc
+    - confusion_matrix
+
+explainer:
+  root_dir: "artifacts/explainer"
+  explainer_path: "artifacts/explainer/shap_explainer.pkl"
+  feature_names_path: "artifacts/explainer/feature_names.pkl"
+  sample_size: 1000
+
+mlflow:
+  tracking_uri: "http://localhost:5000"
+  experiment_name: "credit_default_prediction"
+  run_name_prefix: "experiment"
+
+api:
+  host: "0.0.0.0"
+  port: 8000
+  reload: true
+
+dashboard:
+  host: "0.0.0.0"
+  port: 8501
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file_path: "logs/credit_default.log"

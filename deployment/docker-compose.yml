@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  # FastAPI Backend
+  api:
+    build: 
+      context: ..
+      dockerfile: deployment/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../artifacts:/app/artifacts
+      - ../logs:/app/logs
+      - ../data:/app/data
+    environment:
+      - PYTHONPATH=/app
+    command: python api/fastapi_main.py
+    networks:
+      - credit-default-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Streamlit Dashboard
+  dashboard:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+    ports:
+      - "8501:8501"
+    volumes:
+      - ../artifacts:/app/artifacts
+      - ../logs:/app/logs
+      - ../data:/app/data
+    environment:
+      - PYTHONPATH=/app
+    command: streamlit run dashboard/streamlit_dashboard.py --server.port=8501 --server.address=0.0.0.0
+    networks:
+      - credit-default-network
+    restart: unless-stopped
+    depends_on:
+      - api
+
+  # MLflow Tracking Server (Optional)
+  mlflow:
+    image: python:3.10-slim
+    ports:
+      - "5000:5000"
+    volumes:
+      - ../mlruns:/mlruns
+    command: >
+      bash -c "pip install mlflow && 
+               mlflow server --host 0.0.0.0 --port 5000 --default-artifact-root /mlruns"
+    networks:
+      - credit-default-network
+    restart: unless-stopped
+
+  # Nginx Reverse Proxy (Optional)
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - api
+      - dashboard
+    networks:
+      - credit-default-network
+    restart: unless-stopped
+
+networks:
+  credit-default-network:
+    driver: bridge
+
+volumes:
+  artifacts:
+  logs:
+  data:
+  mlruns:
