@@ -387,7 +387,6 @@ def about_page():
 
     st.markdown("""
     <div style="text-align:center;">
-        <h1>💳 Credit Default Prediction Dashboard</h1>
         <h3>End-to-End ML Engineering Showcase</h3>
     </div>
     """, unsafe_allow_html=True)

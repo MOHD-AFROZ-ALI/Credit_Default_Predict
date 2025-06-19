@@ -206,7 +206,6 @@ class DataTransformation:
             test_arr = np.c_[
                 input_feature_test_arr, np.array(target_feature_test_df)
             ]
-
             logger.info(f"Transformed train array shape: {train_arr.shape}")
             logger.info(f"Transformed test array shape: {test_arr.shape}")
 
