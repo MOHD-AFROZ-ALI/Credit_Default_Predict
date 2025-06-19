@@ -270,6 +270,14 @@ class ModelExplainer:
 
             # Generate global explanations
             global_explanations = self.generate_global_explanations()
+            # Generate local explanations for a sample instance
+            local_explanations = self.generate_local_explanation(self.X_sample[0])
+            logger.info(f"Local explanation for first instance: {local_explanations}")
+
+              # Save local explanations
+            local_explanation_path = self.config.root_dir / "local_explanations.pkl"
+            save_object(local_explanation_path, local_explanations)
+            logger.info(f"Saved local explanation to {local_explanation_path}")
 
             # Create visualizations
             viz_dir = self.config.root_dir / "visualizations"
@@ -294,7 +302,7 @@ class ModelExplainer:
                 'feature_names': self.feature_names
             }
 
-            explanation_path = self.config.root_dir / "explanations.pkl"
+            explanation_path = self.config.root_dir / "global_explanations.pkl"
             save_object(explanation_path, explanation_data)
 
             logger.info("Model explanation completed successfully")

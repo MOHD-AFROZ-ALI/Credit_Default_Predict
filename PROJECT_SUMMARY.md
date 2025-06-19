@@ -72,4 +72,4 @@ credit_default_prediction/
 
 ## 📦 Files Created: 66 total files
 
-The complete project is now available in: /home/user/output/credit_default_prediction
+The complete project is now available in: /credit_default_prediction

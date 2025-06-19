@@ -9,12 +9,12 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 setup(
     name="credit-default-prediction",
     version="1.0.0",
-    author="ML Engineer",
-    author_email="ml.engineer@example.com",
+    author="MOHD AFROZ ALI",
+    author_email="afrozali3001.aa@gmail.com",
     description="End-to-End Credit Default Prediction with Explainable AI",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/your-username/credit-default-prediction",
+    url="https://github.com/MOHD-AFROZ-ALI/Credit_Default_Predict",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     classifiers=[

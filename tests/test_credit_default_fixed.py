@@ -10,11 +10,11 @@ from pathlib import Path
 # Add src directory to path for imports
 sys.path.append(str(Path(__file__).parent.parent / "src"))
 
-from credit_default.exception import CreditDefaultException
-from credit_default.logger import logging
-from credit_default.utils.main_utils import load_object, save_object
-from credit_default.entity.config_entity import DataIngestionConfig
-from credit_default.entity.artifact_entity import DataIngestionArtifact
+from src.credit_default.exception import CreditDefaultException
+from src.credit_default.logger import logging
+from src.credit_default.utils import load_object, save_object
+from src.credit_default.entity import DataIngestionConfig
+from src.credit_default.entity import DataIngestionArtifact
 
 
 class TestDataIngestion:

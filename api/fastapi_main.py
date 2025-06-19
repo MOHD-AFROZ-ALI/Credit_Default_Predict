@@ -213,37 +213,86 @@ async def predict_single(
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
+# @app.post("/explain", response_model=PredictionResponse)
+# async def explain_prediction(
+#     request: PredictionRequest,
+#     pipeline: PredictionPipeline = Depends(get_prediction_pipeline)
+# ):
+#     """Get prediction with detailed explanation"""
+#     try:
+#         if pipeline.explainer is None:
+#             raise HTTPException(status_code=503, detail="Model explainer not available")
+
+#         # Convert request to dictionary
+#         input_data = request.dict()
+
+#         # Make prediction with explanation
+#         result = pipeline.predict(input_data)
+
+#         # Create response with explanation
+#         response = PredictionResponse(
+#             prediction=result.prediction,
+#             probability=result.probability,
+#             risk_score=result.risk_score,
+#             risk_category=result.risk_category,
+#             explanation=result.shap_explanation
+#         )
+
+#         return response
+
+#     except Exception as e:
+#         logger.error(f"Explanation error: {e}")
+#         raise HTTPException(status_code=500, detail=str(e))
+
+import shap
+import pickle
+
+# Load SHAP explainer at startup
+explainer = None
+try:
+    with open('artifacts/explainer/shap_explainer.pkl', 'rb') as f:
+        explainer = pickle.load(f)
+except:
+    print("SHAP explainer not found")
+
 @app.post("/explain", response_model=PredictionResponse)
 async def explain_prediction(
     request: PredictionRequest,
     pipeline: PredictionPipeline = Depends(get_prediction_pipeline)
 ):
-    """Get prediction with detailed explanation"""
+    """Get SHAP explanation for a prediction"""
     try:
-        if pipeline.explainer is None:
-            raise HTTPException(status_code=503, detail="Model explainer not available")
+        # Convert request to DataFrame
+        input_data = pd.DataFrame([request.dict()])
 
-        # Convert request to dictionary
-        input_data = request.dict()
+        # Preprocess
+        X_processed = pipeline.preprocessor.transform(input_data)
 
-        # Make prediction with explanation
-        result = pipeline.predict(input_data)
+        # Get prediction
+        prediction_prob = pipeline.model.predict_proba(X_processed)[0][1]
 
-        # Create response with explanation
-        response = PredictionResponse(
-            prediction=result.prediction,
-            probability=result.probability,
-            risk_score=result.risk_score,
-            risk_category=result.risk_category,
-            explanation=result.shap_explanation
+        # Get SHAP explanation if available
+        explanation = None
+        if explainer is not None:
+            shap_values = explainer(X_processed)
+            if hasattr(shap_values, 'values'):
+                explanation = {
+                    "shap_values": shap_values.values[0].tolist(),
+                    "feature_names": pipeline.feature_names,
+                    "base_value": float(explainer.expected_value[1]) if hasattr(explainer, 'expected_value') else 0.0
+                }
+
+        return PredictionResponse(
+            prediction=1 if prediction_prob > 0.5 else 0,
+            probability=float(prediction_prob),
+            risk_score=float(prediction_prob * 100),  # Assuming risk score is a scaled probability
+            risk_category="High" if prediction_prob > 0.7 else "Medium" if prediction_prob > 0.4 else "Low",
+            explanation=explanation
         )
-
-        return response
 
     except Exception as e:
         logger.error(f"Explanation error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @app.post("/batch-predict", response_model=BatchPredictionResponse)
 async def batch_predict(
