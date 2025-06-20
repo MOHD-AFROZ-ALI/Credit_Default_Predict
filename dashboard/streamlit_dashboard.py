@@ -115,7 +115,7 @@ def create_feature_importance_chart(explanation: Dict[str, Any]) -> go.Figure:
 
     contributions = explanation['top_contributions']
     features = [item['feature'] for item in contributions]
-    values = [item['contribution'] for item in contributions]
+    values = [item['contribution'][0] for item in contributions]
 
     # Create horizontal bar chart
     fig = go.Figure(go.Bar(

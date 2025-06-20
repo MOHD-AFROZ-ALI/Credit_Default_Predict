@@ -261,12 +261,20 @@ class PredictionPipeline:
                 explanation['feature_names'] = self.feature_names
 
                 # Top contributing features
-                contributions = [
-                    {'feature': name, 'contribution': float(shap_val)}
-                    for name, shap_val in zip(self.feature_names, shap_values)
-                ]
-                contributions.sort(key=lambda x: abs(x['contribution']), reverse=True)
-                explanation['top_contributions'] = contributions[:5]
+                # contributions = [
+                #     {'feature': name, 'contribution': float(shap_val)}
+                #     for name, shap_val in zip(self.feature_names, shap_values)
+                # ]
+            contributions = []
+            for name, shap_val in zip(self.feature_names, shap_values):
+                # If shap_val is array-like, take first element
+                if hasattr(shap_val, '__len__') and not isinstance(shap_val, str):
+                    val = float(shap_val[0])
+                else:
+                    val = float(shap_val)
+                contributions.append({'feature': name, 'contribution': val})
+            contributions.sort(key=lambda x: abs(x['contribution']), reverse=True)
+            explanation['top_contributions'] = contributions[:5]
 
             return explanation
 
