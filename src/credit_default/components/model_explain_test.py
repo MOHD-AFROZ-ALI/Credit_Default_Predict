@@ -23,21 +23,22 @@ class ModelExplainer:
     def __init__(self, 
                  model_path: str,
                  test_data_path: str,
-                 visualization_dir: str):
+                 visualization_dir: str = "artifacts/explainer/shap_visualizations/"):
         """
         Initialize ModelExplainer
         
         Args:
             model_path: Path to the trained model
             test_data_path: Path to test data
-            visualization_dir: Directory to save visualizations
+            visualization_dir: Directory to save visualizations. Defaults to "artifacts/explainer/shap_visualizations/".
         """
         self.model_path = model_path
         self.test_data_path = test_data_path
-        self.visualization_dir = visualization_dir
+        # Ensure visualization_dir is a Path object and project-relative
+        self.visualization_dir = Path(visualization_dir)
         
-        # Create visualization directory
-        os.makedirs(self.visualization_dir, exist_ok=True)
+        # Create visualization directory if it doesn't exist
+        self.visualization_dir.mkdir(parents=True, exist_ok=True)
         
         # Initialize components
         self.model = None
@@ -605,16 +606,24 @@ class ModelExplainer:
 if __name__ == "__main__":
     try:
         # Example usage
-        model_path = "C:\\Users\\hp\\Desktop\\credit card\\credit_default_prediction_complete\\credit_default_prediction\\artifacts\\model_trainer\\best_model.pkl"
-        test_data_path = "C:\\Users\\hp\\Desktop\\credit card\\credit_default_prediction_complete\\credit_default_prediction\\artifacts\\data_transformation\\test.csv"
-        visualization_dir = "C:\\Users\\hp\\Desktop\\credit card\\credit_default_prediction_complete\\credit_default_prediction\\artifacts\\explainer\\new_output"
+        # Define project root dynamically for better portability
+        PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 
+        model_path = PROJECT_ROOT / "artifacts" / "model_trainer" / "best_model.pkl"
+        test_data_path = PROJECT_ROOT / "artifacts" / "data_transformation" / "test.csv"
+        # visualization_dir will use the default "artifacts/explainer/shap_visualizations/"
+
+        # Ensure model and test data paths are strings if required by underlying libraries
         explainer = ModelExplainer(
-            model_path=model_path,
-            test_data_path=test_data_path,
-            visualization_dir=visualization_dir
+            model_path=str(model_path),
+            test_data_path=str(test_data_path)
+            # visualization_dir uses default
         )
         
+        logging.info(f"Attempting to load model from: {model_path}")
+        logging.info(f"Attempting to load test data from: {test_data_path}")
+        logging.info(f"Visualizations will be saved to: {explainer.visualization_dir.resolve()}")
+
         # Generate all visualizations
         summary_stats = explainer.generate_all_visualizations()
         

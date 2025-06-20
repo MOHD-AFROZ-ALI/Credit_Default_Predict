@@ -440,6 +440,49 @@ def about_page():
     </div>
     """, unsafe_allow_html=True)
 
+
+def render_shap_visualizations():
+    """Render SHAP visualizations from the artifacts directory"""
+    st.header("SHAP Model Explanations")
+    st.markdown("""
+    This section displays various SHAP (SHapley Additive exPlanations) visualizations
+    to help understand model behavior and feature contributions. These plots are typically
+    generated after model training and explanation.
+
+    *If you don't see any visualizations, please ensure the model explanation script
+    (`src/credit_default/components/model_explain_test.py`) has been run successfully
+    and that visualizations are present in the `artifacts/explainer/shap_visualizations/` directory.*
+    """)
+
+    viz_dir = Path("artifacts/explainer/shap_visualizations/")
+
+    if not viz_dir.exists() or not viz_dir.is_dir():
+        st.warning(f"Visualization directory not found: {viz_dir.resolve()}")
+        st.info("Please run the model explanation script to generate visualizations.")
+        return
+
+    viz_files = sorted(list(viz_dir.glob("*.png")) + list(viz_dir.glob("*.html")))
+
+    if not viz_files:
+        st.info(f"No visualizations found in {viz_dir.resolve()}.")
+        return
+
+    for viz_file in viz_files:
+        st.subheader(f"Displaying: {viz_file.name}")
+        try:
+            if viz_file.suffix == ".png":
+                st.image(str(viz_file), use_column_width=True)
+            elif viz_file.suffix == ".html":
+                with open(viz_file, 'r', encoding='utf-8') as f:
+                    html_content = f.read()
+                # Adjust height based on typical SHAP plot needs
+                height = 400 if "force_plot" in viz_file.name else 800
+                st.components.v1.html(html_content, height=height, scrolling=True)
+            st.markdown("---")
+        except Exception as e:
+            st.error(f"Could not display {viz_file.name}: {e}")
+
+
 def main():
     """Main application"""
     # Title and description
@@ -455,7 +498,7 @@ def main():
     st.sidebar.title("Navigation")
     page = st.sidebar.selectbox(
         "Choose a page",
-        ["Single Prediction", "Batch Prediction", "Model Analytics", "About"]
+        ["Single Prediction", "Batch Prediction", "Model Analytics", "SHAP Visualizations", "About"]
     )
 
     # Load pipeline
@@ -551,6 +594,9 @@ def main():
     elif page == "Model Analytics":
         render_model_analytics()
     
+    elif page == "SHAP Visualizations":
+        render_shap_visualizations()
+
     elif page == "About":
         about_page()
 
