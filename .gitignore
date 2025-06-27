@@ -77,9 +77,9 @@ mlruns/
 .mlflow/
 
 # Data files (exclude large files)
-data/raw/*.csv
+
 data/raw/*.xlsx
-data/raw/*.xls
+
 data/processed/*.csv
 
 # Model files
