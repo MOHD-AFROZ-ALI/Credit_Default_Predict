@@ -70,7 +70,7 @@ venv.bak/
 Thumbs.db
 
 # Project specific
-artifacts/
+
 logs/
 *.log
 mlruns/

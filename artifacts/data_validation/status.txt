@@ -1,0 +1,6 @@
+Validation Status: Validation Passed
+Column Validation: Passed
+Type Validation: Passed
+Range Validation: Passed
+Missing Percentage: 0.00%
+Duplicate Percentage: 0.00%

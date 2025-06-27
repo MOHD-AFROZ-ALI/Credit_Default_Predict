@@ -1,0 +1,19 @@
+all_model_scores:
+  Logistic Regression: 0.7646422152780943
+best_model: Logistic Regression
+best_params:
+  C: 1
+  penalty: l1
+  solver: liblinear
+best_score: 0.7646422152780943
+evaluation_metrics:
+  accuracy: 0.8194560320373769
+  confusion_matrix:
+  - - 4447
+    - 220
+  - - 862
+    - 464
+  f1_score: 0.7964322948261959
+  precision: 0.8023940616779549
+  recall: 0.8194560320373769
+  roc_auc: 0.7646422152780943
